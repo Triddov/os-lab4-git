@@ -1,0 +1,38 @@
+name: Bash Script CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Run ShellCheck linter
+        uses: ludeeus/action-shellcheck@2.0.0
+
+      - name: Run unit test
+        run: |
+          chmod +x app_calculator.sh
+          output=$(./app_calculator.sh 5 10)
+          if [ "$output" != "Сумма: 15" ]; then
+            echo "Тест провален: $output"
+            exit 1
+          fi
+          echo "Тест успешно пройден!"
+
+      - name: Run negative test (no arguments)
+        run: |
+          if ./app_calculator.sh; then
+            echo "Тест провален: скрипт без аргументов должен завершаться с ошибкой"
+            exit 1
+          fi
+          echo "Негативный тест успешно пройден!"
