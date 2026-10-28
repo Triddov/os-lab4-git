@@ -72,3 +72,21 @@ jobs:
         uses: ansible/ansible-lint@v26
         with:
           args: "ansible_iac/setup_env.yml"
+
+  compose-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Validate Docker Compose file
+        run: |
+          cd monitoring
+          docker compose config --quiet
+          echo "docker-compose.yml валиден"
+
+      - name: Validate Prometheus config
+        run: |
+          docker run --rm --entrypoint promtool \
+            -v "$PWD/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro" \
+            prom/prometheus:v3.15.1 check config /etc/prometheus/prometheus.yml
