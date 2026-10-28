@@ -61,3 +61,14 @@ jobs:
       - name: Cleanup
         if: always()
         run: docker rm -f test_app || true
+
+  ansible-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Run Ansible Lint
+        uses: ansible/ansible-lint@v26
+        with:
+          args: "ansible_iac/setup_env.yml"
