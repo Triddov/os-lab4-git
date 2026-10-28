@@ -1,4 +1,4 @@
-name: Bash Script CI
+name: CI and Docker Build
 
 on:
   push:
@@ -36,3 +36,28 @@ jobs:
             exit 1
           fi
           echo "Негативный тест успешно пройден!"
+
+  docker-build:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Build Docker Image
+        run: |
+          docker build -t my-app:${{ github.sha }} .
+
+      - name: Test Docker Container
+        run: |
+          docker run -d -p 8080:8080 --name test_app my-app:${{ github.sha }}
+          sleep 2
+          curl --fail --retry 5 --retry-connrefused --retry-delay 1 http://localhost:8080 || exit 1
+
+      - name: Show container logs
+        if: always()
+        run: docker logs test_app || true
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f test_app || true
