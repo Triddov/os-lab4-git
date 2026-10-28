@@ -1,0 +1,10 @@
+# служебные файлы ОС и редакторов
+.DS_Store
+*.swp
+
+# кэш Python
+__pycache__/
+*.pyc
+
+# кэш ansible-lint / ansible-compat
+.ansible/
